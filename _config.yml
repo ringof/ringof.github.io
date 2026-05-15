@@ -1,0 +1,35 @@
+title: "ringof — RX888 SDR open-source stack"
+description: >-
+  Open-source firmware, Linux library/tools, and GNU Radio module for the
+  RX888 mk2 direct-sampling HF SDR — Cypress FX3 + LTC2208 16-bit ADC.
+author: ringof
+url: "https://ringof.github.io"
+baseurl: ""
+
+github_username: ringof
+
+encoding: utf-8
+
+# Disable the github-pages default Primer theme; this site has its own layout.
+theme:
+
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+# To enable an Open Graph image for link previews, drop a 1200x630 PNG at
+# /assets/og-image.png and add `image: /assets/og-image.png` under values
+# above (see SEO playbook tier 2.3).
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - vendor
+  - .jekyll-cache
+  - node_modules

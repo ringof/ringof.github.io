@@ -8,6 +8,11 @@ baseurl: ""
 
 github_username: ringof
 
+# Search engine ownership verification — emitted as <meta> tags by jekyll-seo-tag.
+webmaster_verifications:
+  google: Jzb4gSfFYJluqSRf2MnGKkAcwaR8V7jPu_xBPeD5HLw
+  bing: 3804FF063F01EBF3145B8D4D3EF09208
+
 encoding: utf-8
 
 # Disable the github-pages default Primer theme; this site has its own layout.

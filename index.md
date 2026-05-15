@@ -26,7 +26,7 @@ library as a native GNU Radio source block.
 ## Block diagram
 
 <div class="diagram" role="img" aria-labelledby="diagram-title diagram-desc">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 560" font-family="-apple-system, Segoe UI, Roboto, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 480" font-family="-apple-system, Segoe UI, Roboto, sans-serif">
   <title id="diagram-title">RX888 mk2 SDR open-source stack: firmware to librx888 to GNU Radio OOT module</title>
   <desc id="diagram-desc">
     Block diagram of the RX888 mk2 open-source software stack. The RX888 mk2
@@ -48,102 +48,79 @@ library as a native GNU Radio source block.
       .box { fill: #ffffff; stroke: #0b6fa4; stroke-width: 2; }
       .box-hw { fill: #eef5fa; stroke: #0b6fa4; stroke-width: 2; }
       .box-down { fill: #f5f0e6; stroke: #b07a1f; stroke-width: 2; }
-      .title { font-size: 18px; font-weight: 700; fill: #0b6fa4; }
-      .title-down { font-size: 16px; font-weight: 700; fill: #8a5a14; }
+      .title { font-size: 17px; font-weight: 700; fill: #0b6fa4; }
+      .title-down { font-size: 15px; font-weight: 700; fill: #8a5a14; }
       .subtitle { font-size: 12px; fill: #555; }
       .feat { font-size: 12px; fill: #1a1a1a; }
       .label { font-size: 11px; fill: #0b6fa4; font-style: italic; }
     </style>
   </defs>
 
-  <!-- Hardware (top) -->
-  <rect class="box-hw" x="320" y="20" width="360" height="80" rx="6"/>
-  <text class="title" x="500" y="48" text-anchor="middle">RX888 mk2 hardware</text>
-  <text class="subtitle" x="500" y="68" text-anchor="middle">
-    LTC2208 16-bit ADC · Cypress FX3 USB 3.0 · Si5351 clock
-  </text>
-  <text class="subtitle" x="500" y="85" text-anchor="middle">
-    Direct-sampling HF receiver, 0–32 MHz
-  </text>
+  <!-- Hardware (above firmware) -->
+  <rect class="box-hw" x="40" y="20" width="280" height="64" rx="6"/>
+  <text class="title" x="180" y="46" text-anchor="middle">RX888 mk2 hardware</text>
+  <text class="subtitle" x="180" y="66" text-anchor="middle">LTC2208 ADC · FX3 USB3 · Si5351</text>
 
-  <!-- Arrow down from hardware to firmware -->
-  <line x1="220" y1="100" x2="160" y2="160"
+  <!-- Arrow hardware → firmware (vertical, centered on firmware) -->
+  <line x1="180" y1="86" x2="180" y2="118"
         stroke="#0b6fa4" stroke-width="2" marker-end="url(#arrow)"/>
-  <text class="label" x="135" y="135">runs on FX3</text>
 
   <!-- Firmware -->
-  <rect class="box" x="40" y="170" width="240" height="280" rx="6"/>
-  <text class="title" x="160" y="200" text-anchor="middle">rx888-firmware</text>
-  <text class="subtitle" x="160" y="218" text-anchor="middle">Cypress FX3 firmware (MIT)</text>
-
-  <text class="feat" x="55" y="248">• FX3 GPIF USB 3.0 streaming</text>
-  <text class="feat" x="55" y="268">• Si5351 I2C clock control</text>
-  <text class="feat" x="55" y="288">• Vendor cmds: STARTFX3, STOPFX3,</text>
-  <text class="feat" x="65" y="304">I2CWFX3, GPIOFX3, SETARGFX3</text>
-  <text class="feat" x="55" y="324">• GPIO + attenuator control</text>
-  <text class="feat" x="55" y="344">• 5-level watchdog recovery</text>
-  <text class="feat" x="55" y="364">• MIT-licensed (no GPL R82xx)</text>
-  <text class="feat" x="55" y="384">• HF direct-sampling, 0–32 MHz</text>
-  <text class="feat" x="55" y="404">• Built with arm-none-eabi-gcc</text>
-  <text class="feat" x="55" y="424">• Cypress FX3 SDK v1.3.4</text>
+  <rect class="box" x="40" y="120" width="280" height="240" rx="6"/>
+  <text class="title" x="180" y="150" text-anchor="middle">rx888-firmware</text>
+  <text class="subtitle" x="180" y="170" text-anchor="middle">Cypress FX3 firmware (MIT)</text>
+  <text class="feat" x="58" y="206">• FX3 GPIF USB 3.0 streaming</text>
+  <text class="feat" x="58" y="232">• Si5351 I2C clock control</text>
+  <text class="feat" x="58" y="258">• Vendor command set</text>
+  <text class="feat" x="58" y="284">• 5-level watchdog recovery</text>
+  <text class="feat" x="58" y="310">• MIT-licensed, HF 0–32 MHz</text>
 
   <!-- Arrow firmware → tools -->
-  <line x1="280" y1="310" x2="360" y2="310"
+  <line x1="322" y1="240" x2="378" y2="240"
         stroke="#0b6fa4" stroke-width="2" marker-end="url(#arrow)"/>
-  <text class="label" x="320" y="298" text-anchor="middle">USB 3.0 bulk</text>
-  <text class="label" x="320" y="325" text-anchor="middle">int16 @ 135 MS/s</text>
+  <text class="label" x="350" y="228" text-anchor="middle">USB 3.0 bulk</text>
+  <text class="label" x="350" y="256" text-anchor="middle">int16 @ 135 MS/s</text>
 
   <!-- Tools / librx888 -->
-  <rect class="box" x="360" y="170" width="280" height="280" rx="6"/>
-  <text class="title" x="500" y="200" text-anchor="middle">rx888-tools / librx888</text>
-  <text class="subtitle" x="500" y="218" text-anchor="middle">Linux host driver + CLI (MIT)</text>
-
-  <text class="feat" x="375" y="248">• librx888 shared library (libusb-1.0)</text>
-  <text class="feat" x="375" y="268">• Uploads firmware blob on connect</text>
-  <text class="feat" x="375" y="288">• rx888_stream — raw USB3 capture</text>
-  <text class="feat" x="375" y="308">• rx888_dsp — 4:1 decimation</text>
-  <text class="feat" x="385" y="324">135 MS/s → 33.75 MS/s</text>
-  <text class="feat" x="375" y="344">• iqrecord — SigMF IQ recording</text>
-  <text class="feat" x="375" y="364">• FIFO/pipe streaming to GQRX</text>
-  <text class="feat" x="375" y="384">• AVX2 + FMA DSP path</text>
-  <text class="feat" x="375" y="404">• Ubuntu 24.04 build target</text>
-  <text class="feat" x="375" y="424">• Checksum-verified firmware fetch</text>
+  <rect class="box" x="380" y="120" width="320" height="240" rx="6"/>
+  <text class="title" x="540" y="150" text-anchor="middle">rx888-tools / librx888</text>
+  <text class="subtitle" x="540" y="170" text-anchor="middle">Linux host driver + CLI (MIT)</text>
+  <text class="feat" x="398" y="206">• librx888 (libusb-1.0)</text>
+  <text class="feat" x="398" y="232">• rx888_stream / _dsp / iqrecord</text>
+  <text class="feat" x="398" y="258">• 4:1 decim → 33.75 MS/s</text>
+  <text class="feat" x="398" y="284">• SigMF IQ recording</text>
+  <text class="feat" x="398" y="310">• GQRX FIFO streaming</text>
 
   <!-- Arrow tools → gr-rx888 -->
-  <line x1="640" y1="310" x2="720" y2="310"
+  <line x1="702" y1="240" x2="758" y2="240"
         stroke="#0b6fa4" stroke-width="2" marker-end="url(#arrow)"/>
-  <text class="label" x="680" y="298" text-anchor="middle">librx888 API</text>
-  <text class="label" x="680" y="325" text-anchor="middle">(C shared lib)</text>
+  <text class="label" x="730" y="228" text-anchor="middle">librx888 API</text>
+  <text class="label" x="730" y="256" text-anchor="middle">(C shared lib)</text>
 
   <!-- gr-rx888 -->
-  <rect class="box" x="720" y="170" width="240" height="280" rx="6"/>
-  <text class="title" x="840" y="200" text-anchor="middle">gr-rx888</text>
-  <text class="subtitle" x="840" y="218" text-anchor="middle">GNU Radio 3.10 OOT module (MIT)</text>
+  <rect class="box" x="760" y="120" width="280" height="240" rx="6"/>
+  <text class="title" x="900" y="150" text-anchor="middle">gr-rx888</text>
+  <text class="subtitle" x="900" y="170" text-anchor="middle">GNU Radio 3.10 OOT (MIT)</text>
+  <text class="feat" x="778" y="206">• rx888.source GR block</text>
+  <text class="feat" x="778" y="232">• float32 output</text>
+  <text class="feat" x="778" y="258">• 32 / 135 MS/s rates</text>
+  <text class="feat" x="778" y="284">• GRC integration</text>
+  <text class="feat" x="778" y="310">• pybind11 bindings</text>
 
-  <text class="feat" x="735" y="248">• rx888.source block</text>
-  <text class="feat" x="735" y="268">• float32 sample output</text>
-  <text class="feat" x="735" y="288">• 32 MS/s and 135 MS/s rates</text>
-  <text class="feat" x="735" y="308">• GNU Radio Companion (GRC)</text>
-  <text class="feat" x="745" y="324">integration</text>
-  <text class="feat" x="735" y="344">• pybind11 Python bindings</text>
-  <text class="feat" x="735" y="364">• Links system-wide librx888</text>
-  <text class="feat" x="735" y="384">• Standard OOT cmake layout</text>
-  <text class="feat" x="735" y="404">• 16-bit direct sampling</text>
-  <text class="feat" x="735" y="424">• Real-input source (HF)</text>
+  <!-- Arrows down to consumers (centered under each parent) -->
+  <line x1="540" y1="362" x2="540" y2="408"
+        stroke="#0b6fa4" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="900" y1="362" x2="900" y2="408"
+        stroke="#0b6fa4" stroke-width="2" marker-end="url(#arrow)"/>
 
   <!-- Downstream consumers -->
-  <rect class="box-down" x="360" y="480" width="280" height="60" rx="6"/>
-  <text class="title-down" x="500" y="505" text-anchor="middle">GQRX, custom CLI</text>
-  <text class="subtitle" x="500" y="525" text-anchor="middle">via FIFO / SigMF files</text>
+  <rect class="box-down" x="380" y="410" width="320" height="58" rx="6"/>
+  <text class="title-down" x="540" y="437" text-anchor="middle">GQRX, custom CLI</text>
+  <text class="subtitle" x="540" y="456" text-anchor="middle">via FIFO / SigMF files</text>
 
-  <rect class="box-down" x="720" y="480" width="240" height="60" rx="6"/>
-  <text class="title-down" x="840" y="505" text-anchor="middle">GNU Radio flowgraphs</text>
-  <text class="subtitle" x="840" y="525" text-anchor="middle">GRC / Python (.grc, .py)</text>
-
-  <line x1="500" y1="450" x2="500" y2="475"
-        stroke="#b07a1f" stroke-width="2" marker-end="url(#arrow)"/>
-  <line x1="840" y1="450" x2="840" y2="475"
-        stroke="#b07a1f" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect class="box-down" x="760" y="410" width="280" height="58" rx="6"/>
+  <text class="title-down" x="900" y="437" text-anchor="middle">GNU Radio flowgraphs</text>
+  <text class="subtitle" x="900" y="456" text-anchor="middle">GRC / Python (.grc, .py)</text>
 </svg>
 </div>
 

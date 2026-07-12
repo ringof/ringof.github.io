@@ -8,13 +8,27 @@
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
 </head>
 <body>
+  <header class="site-nav">
+    <a class="site-brand" href="{{ '/' | relative_url }}">ringof</a>
+    <nav class="site-links">
+      <a href="{{ '/notebook/' | relative_url }}">Notebook</a>
+      <a href="{{ '/rx888/' | relative_url }}">RX888</a>
+      <a href="https://github.com/ringof">GitHub</a>
+    </nav>
+  </header>
+
   <main class="page">
     {{ content }}
     <footer class="site-footer">
       <p>
-        Maintained by <a href="https://github.com/ringof">@ringof</a> ·
-        Source for this page: <a href="https://github.com/ringof/ringof.github.io">ringof/ringof.github.io</a>
+        A workbench notebook by <a href="https://github.com/ringof">@ringof</a> —
+        radios, hardware, and the odd rabbit hole.
+        Source: <a href="https://github.com/ringof/ringof.github.io">ringof/ringof.github.io</a>
       </p>
+      <div class="site-flag">
+        <img class="pride-flag" src="{{ '/assets/progress-pride-flag.png' | relative_url }}"
+             alt="Intersex-Inclusive Progress Pride flag" width="360" height="229">
+      </div>
     </footer>
   </main>
 </body>

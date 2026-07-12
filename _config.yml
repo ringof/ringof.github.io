@@ -1,12 +1,15 @@
-title: "ringof — RX888 SDR open-source stack"
+title: "ringof — a workbench notebook for radios and hardware"
 description: >-
-  Open-source firmware, Linux library/tools, and GNU Radio module for the
-  RX888 mk2 direct-sampling HF SDR — Cypress FX3 + LTC2208 16-bit ADC.
+  Open-source radio and hardware from ringof — the RX888 mk2 SDR stack, an
+  FPGA HF radio, and bench notes on whatever else is in progress.
 author: ringof
 url: "https://ringof.github.io"
 baseurl: ""
 
 github_username: ringof
+
+# Clean, notebook-scoped URLs for blog posts (e.g. /notebook/2026/07/the-rx888/).
+permalink: /notebook/:year/:month/:title/
 
 # Search engine ownership verification — emitted as <meta> tags by jekyll-seo-tag.
 webmaster_verifications:

@@ -1,14 +1,29 @@
 :root {
-  --fg: #1a1a1a;
-  --muted: #555;
-  --bg: #fafafa;
-  --card: #ffffff;
+  --fg: #2b2418;      /* warm dark brown ink */
+  --muted: #6a5e46;
+  --bg: #ebe0c9;      /* sepia parchment */
+  --card: #f6efdc;    /* lighter sepia for cards */
   --accent: #0b6fa4;
-  --border: #d8d8d8;
-  --code-bg: #f1f1f1;
+  --border: #d7c6a2;
+  --code-bg: #e5d6b8;
 }
 
 * { box-sizing: border-box; }
+
+/* De-emphasized keyword footer on the RX888 page. */
+.related-searches {
+  margin-top: 2.75rem;
+  font-size: .78rem;
+  line-height: 1.5;
+  color: var(--muted);
+  opacity: .75;
+}
+.related-searches h4 {
+  font-size: .82rem;
+  font-weight: 600;
+  margin: 0 0 .3rem;
+  color: var(--muted);
+}
 
 html, body {
   margin: 0;
@@ -22,7 +37,32 @@ html, body {
 .page {
   max-width: 880px;
   margin: 0 auto;
-  padding: 2.5rem 1.25rem 4rem;
+  padding: 1.5rem 1.25rem 4rem;
+}
+
+/* ---- Site navigation ---------------------------------------------------- */
+.site-nav {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .5rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.site-brand {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--fg);
+  letter-spacing: .01em;
+}
+.site-brand:hover { text-decoration: none; color: var(--accent); }
+.site-links {
+  display: flex;
+  gap: 1.25rem;
+  font-size: .95rem;
 }
 
 h1, h2, h3 { line-height: 1.25; }
@@ -91,4 +131,62 @@ code {
   border-top: 1px solid var(--border);
   font-size: .85rem;
   color: var(--muted);
+}
+
+.site-flag { text-align: center; margin-top: 1.1rem; }
+.pride-flag {
+  width: 69px;
+  height: auto;
+  display: inline-block;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .28);
+}
+
+/* ---- Notebook / post list ----------------------------------------------- */
+.post-list { list-style: none; padding: 0; margin: 1.5rem 0 2rem; }
+.post-list-item {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.post-list-item:first-child { padding-top: .25rem; }
+.post-list-link {
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: inline-block;
+}
+.post-list-date {
+  display: block;
+  font-size: .82rem;
+  color: var(--muted);
+  margin-top: .15rem;
+}
+.post-list-excerpt {
+  margin: .5rem 0 0;
+  color: var(--muted);
+  font-size: .95rem;
+}
+.post-list--home .post-list-excerpt { display: none; }
+
+/* ---- Single post -------------------------------------------------------- */
+.post-header { margin-bottom: 1.5rem; }
+.post-title { margin-bottom: .25rem; }
+.post-meta {
+  color: var(--muted);
+  font-size: .9rem;
+  margin: 0;
+}
+.post-content h2 { font-size: 1.25rem; }
+.post-content h3 { font-size: 1.05rem; }
+.post-content img { max-width: 100%; height: auto; border-radius: 6px; }
+.post-content blockquote {
+  margin: 1.25rem 0;
+  padding: .25rem 0 .25rem 1rem;
+  border-left: 3px solid var(--border);
+  color: var(--muted);
+}
+.post-back {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-size: .95rem;
 }

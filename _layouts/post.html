@@ -9,7 +9,7 @@ layout: default
       {%- if page.tags and page.tags.size > 0 -%}
         <span class="post-tags" aria-label="Tags">
           {%- for tag in page.tags -%}
-            <span class="post-tag">#{{ tag }}</span>
+            <a class="post-tag" href="{{ '/tags/' | relative_url }}#tag-{{ tag | slugify }}">#{{ tag | slugify }}</a>
           {%- endfor -%}
         </span>
       {%- endif -%}

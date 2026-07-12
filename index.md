@@ -1,13 +1,11 @@
 ---
-title: "ringof — a workbench notebook for radios and hardware"
+title: "ringof blog"
 description: >-
-  ringof builds open-source radio and hardware: the RX888 mk2 SDR stack
-  (firmware, librx888, GNU Radio module), an FPGA HF radio, a USB3-to-fiber
-  link, a precision timing bench, and more. Progress notes in the notebook.
+  ringof builds open-source radio projects and keeps a blog notebook.
 permalink: /
 ---
 
-I build radios and the hardware supporting them — mostly open-source, mostly for
+I build radios and things to support them — mostly open-source, mostly for
 the joy of getting something to work. This is where I keep notes on what's on the
 bench, in the hope that some of it saves you an afternoon or the whole project.
 
@@ -16,8 +14,8 @@ that turns USB into light, a clock steady enough to trust. I also like to save a
 bit of money, where a good hack can do, we do!
 
 Some of it is finished, most of it is in progress, and a fair bit fought back
-before it behaved. I write it down the way I'd explain it to a friend at the
-workbench — plainly, and without pretending it was easy.
+before it behaved. I explain it like a friend at the workbench — plainly, and 
+without pretending it was easy.
 
 If you'd rather jump straight in: the **[RX888 mk2 SDR stack](/rx888/)** is the
 most complete thing here, and the **[notebook](/notebook/)** has the running

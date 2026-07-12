@@ -7,9 +7,7 @@ description: >-
 permalink: /
 ---
 
-# Hello, and welcome to the bench
-
-<p class="lede">
+<p>
 I'm ringof. I build radios and the hardware around them — mostly open-source,
 mostly for the joy of getting something to work. This is where I keep notes on
 what's on the bench, in the hope that some of it saves you an afternoon.
@@ -25,7 +23,7 @@ If you'd rather jump straight in: the **[RX888 mk2 SDR stack](/rx888/)** is the
 most complete thing here, and the **[notebook](/notebook/)** has the running
 account of everything else.
 
-## Fresh from the notebook
+## Fresh ink in the notebook
 
 <ul class="post-list post-list--home">
 {% for post in site.posts limit:3 %}
@@ -51,17 +49,6 @@ An open-source software stack for the RX888 mk2 direct-sampling HF receiver:
 Cypress FX3 **firmware**, the **`librx888`** host library and CLI tools, and a
 **GNU Radio 3.10** source block. Three MIT-licensed repos that turn the raw
 hardware into a receiver you can actually use on Linux.
-
-</div>
-
-<div class="project-card" markdown="1">
-
-### [Radiofist FPGA radio](https://github.com/ringof/radiofist_simulation)
-
-An HF radio built in an FPGA fabric — the [audio chain](https://github.com/ringof/radiofist_audio)
-(ADC, DAC, filters) in VHDL, with the DSP worked out first in
-[simulation](https://github.com/ringof/radiofist_simulation). The long game:
-a radio whose signal path I understand all the way down.
 
 </div>
 

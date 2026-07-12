@@ -244,6 +244,21 @@ a.post-tag:hover {
 .post-content h2 { font-size: 1.28rem; }
 .post-content h3 { font-size: 1.05rem; }
 .post-content img { max-width: 100%; height: auto; border-radius: 6px; }
+.post-video { margin: 1.75rem 0; }
+.post-video video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  background: #000;
+  border: 1px solid var(--border);
+}
+.post-video figcaption {
+  margin-top: .5rem;
+  font-size: .85rem;
+  color: var(--muted);
+  text-align: center;
+}
 .post-content a {
   text-decoration: underline;
 }

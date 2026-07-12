@@ -1,48 +1,41 @@
 :root {
-  --fg: #2b2418;      /* warm dark brown ink */
-  --muted: #6a5e46;
-  --bg: #ebe0c9;      /* sepia parchment */
-  --card: #f6efdc;    /* lighter sepia for cards */
-  --accent: #0b6fa4;
-  --border: #d7c6a2;
-  --code-bg: #e5d6b8;
+  --fg: #201c14;      /* warm dark ink */
+  --muted: #675d48;
+  --bg: #eadfc9;      /* sepia parchment */
+  --card: #f7f0de;    /* lighter sepia for cards */
+  --card-strong: #fff9e9;
+  --accent: #075f8f;
+  --accent-2: #177245;
+  --border: #d3bf98;
+  --code-bg: #dfd0ad;
+  --shadow: 0 18px 42px rgba(55, 42, 20, .12);
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 }
 
 * { box-sizing: border-box; }
-
-/* De-emphasized keyword footer on the RX888 page. */
-.related-searches {
-  margin-top: 2.75rem;
-  font-size: .78rem;
-  line-height: 1.5;
-  color: var(--muted);
-  opacity: .75;
-}
-.related-searches h4 {
-  font-size: .82rem;
-  font-weight: 600;
-  margin: 0 0 .3rem;
-  color: var(--muted);
-}
 
 html, body {
   margin: 0;
   padding: 0;
   background: var(--bg);
   color: var(--fg);
-  font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+  font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
         "Helvetica Neue", Arial, sans-serif;
 }
 
+::selection {
+  background: rgba(23, 114, 69, .22);
+}
+
 .page {
-  max-width: 880px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 1.5rem 1.25rem 4rem;
+  padding: 1.75rem 1.25rem 4rem;
 }
 
 /* ---- Site navigation ---------------------------------------------------- */
 .site-nav {
-  max-width: 880px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 1.1rem 1.25rem;
   display: flex;
@@ -56,8 +49,10 @@ html, body {
   font-weight: 700;
   font-size: 1.15rem;
   color: var(--fg);
-  letter-spacing: .01em;
+  font-family: var(--mono);
+  letter-spacing: -.02em;
 }
+.site-brand::before { content: "~/"; color: var(--accent-2); }
 .site-brand:hover { text-decoration: none; color: var(--accent); }
 .site-links {
   display: flex;
@@ -65,12 +60,17 @@ html, body {
   font-size: .95rem;
 }
 
-h1, h2, h3 { line-height: 1.25; }
-h1 { font-size: 2rem; margin: 0 0 .5rem; }
-h2 { font-size: 1.35rem; margin: 2.25rem 0 .75rem; border-bottom: 1px solid var(--border); padding-bottom: .25rem; }
+h1, h2, h3 { line-height: 1.2; letter-spacing: -.02em; }
+h1 { font-size: clamp(2rem, 5vw, 3rem); margin: 0 0 .5rem; }
+h2 {
+  font-size: 1.35rem;
+  margin: 2.4rem 0 .8rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: .3rem;
+}
 h3 { font-size: 1.1rem; margin: 1.5rem 0 .5rem; }
 
-a { color: var(--accent); text-decoration: none; }
+a { color: var(--accent); text-decoration-thickness: .08em; text-underline-offset: .16em; text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 p, ul { margin: 0 0 1rem; }
@@ -82,7 +82,7 @@ code {
   padding: .1em .35em;
   border-radius: 3px;
   font-size: .9em;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: var(--mono);
 }
 
 .lede {
@@ -120,6 +120,7 @@ code {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1rem 1.1rem;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .55) inset;
 }
 .project-card h3 { margin-top: 0; }
 .project-card p { font-size: .95rem; color: var(--muted); }
@@ -168,16 +169,116 @@ code {
 .post-list--home .post-list-excerpt { display: none; }
 
 /* ---- Single post -------------------------------------------------------- */
-.post-header { margin-bottom: 1.5rem; }
+.post {
+  max-width: 760px;
+  margin: 0 auto;
+}
+.post-header {
+  position: relative;
+  margin-bottom: 1.75rem;
+  padding: 1.35rem 1.4rem 1.25rem;
+  background:
+    linear-gradient(90deg, rgba(23, 114, 69, .12), transparent 38%),
+    var(--card-strong);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+.post-header::before {
+  content: "$ cat notebook.md";
+  display: block;
+  margin-bottom: .75rem;
+  color: var(--accent-2);
+  font-family: var(--mono);
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
 .post-title { margin-bottom: .25rem; }
 .post-meta {
   color: var(--muted);
-  font-size: .9rem;
+  font-size: .86rem;
   margin: 0;
+  font-family: var(--mono);
 }
-.post-content h2 { font-size: 1.25rem; }
+.post-tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  margin-left: .6rem;
+  vertical-align: middle;
+}
+.post-tag {
+  display: inline-block;
+  padding: .08rem .38rem;
+  background: rgba(7, 95, 143, .09);
+  border: 1px solid rgba(7, 95, 143, .18);
+  border-radius: 999px;
+  color: var(--accent);
+}
+a.post-tag:hover {
+  text-decoration: none;
+  background: rgba(7, 95, 143, .18);
+  border-color: rgba(7, 95, 143, .38);
+}
+
+/* ---- Tags page ---------------------------------------------------------- */
+.tag-cloud {
+  list-style: none;
+  padding: 0;
+  margin: 1.25rem 0 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem .6rem;
+}
+.tag-cloud li {
+  margin: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: .25rem;
+}
+.tag-count { font-size: .78rem; color: var(--muted); }
+.post-content {
+  font-size: 1.02rem;
+}
+.post-content h2 { font-size: 1.28rem; }
 .post-content h3 { font-size: 1.05rem; }
 .post-content img { max-width: 100%; height: auto; border-radius: 6px; }
+.post-content a {
+  text-decoration: underline;
+}
+.post-content strong {
+  color: #17130d;
+}
+.post-content ul {
+  padding-left: 0;
+  list-style: none;
+}
+.post-content ul > li {
+  position: relative;
+  padding-left: 1.25rem;
+  margin: .45rem 0;
+}
+.post-content ul > li::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: var(--accent-2);
+  font-size: .9em;
+}
+/* Ordered lists keep their numbers (the ▸ marker is unordered-only). */
+.post-content ol {
+  padding-left: 1.5rem;
+  margin: 0 0 1rem;
+}
+.post-content ol > li {
+  margin: .45rem 0;
+  padding-left: .2rem;
+}
+.post-content ol > li::marker {
+  color: var(--accent-2);
+  font-weight: 700;
+}
 .post-content blockquote {
   margin: 1.25rem 0;
   padding: .25rem 0 .25rem 1rem;
@@ -189,4 +290,11 @@ code {
   padding-top: 1rem;
   border-top: 1px solid var(--border);
   font-size: .95rem;
+}
+
+@media (max-width: 560px) {
+  html, body { font-size: 16px; }
+  .site-nav { align-items: flex-start; }
+  .site-links { gap: .85rem; font-size: .9rem; }
+  .post-header { padding: 1rem; border-radius: 10px; }
 }

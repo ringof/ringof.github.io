@@ -1,11 +1,11 @@
 :root {
-  --fg: #23201a;
-  --muted: #5c574c;
-  --bg: #f3efe5;      /* warm paper, not bright white */
-  --card: #fcfaf4;    /* soft warm off-white for cards */
+  --fg: #2b2418;      /* warm dark brown ink */
+  --muted: #6a5e46;
+  --bg: #ebe0c9;      /* sepia parchment */
+  --card: #f6efdc;    /* lighter sepia for cards */
   --accent: #0b6fa4;
-  --border: #ddd5c4;
-  --code-bg: #ece5d5;
+  --border: #d7c6a2;
+  --code-bg: #e5d6b8;
 }
 
 * { box-sizing: border-box; }

@@ -118,6 +118,15 @@ code {
   color: var(--muted);
 }
 
+.site-flag { text-align: center; margin-top: 1.1rem; }
+.pride-flag {
+  width: 46px;
+  height: auto;
+  display: inline-block;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .28);
+}
+
 /* ---- Notebook / post list ----------------------------------------------- */
 .post-list { list-style: none; padding: 0; margin: 1.5rem 0 2rem; }
 .post-list-item {

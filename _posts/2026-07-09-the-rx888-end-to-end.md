@@ -13,7 +13,7 @@ length of something you built. This week the RX888 mk2 did exactly that — from
 the ADC to a waterfall in GNU Radio — with open-source code at every step.
 
 The RX888 mk2 is a lovely, blunt instrument: an LTC2208 sampling the HF spectrum
-directly at 16 bits, a Cypress FX3 shoving the samples out over USB 3.0, and not
+directly at 16 bits, a Cypress FX3 firehosing samples out over USB 3.0, and not
 much software to speak of. So the work split naturally into three repositories,
 each handling one leg of the journey:
 
@@ -23,7 +23,7 @@ each handling one leg of the journey:
 - **[`librx888` and the CLI tools](https://github.com/ringof/rx888-tools)** on
   the Linux side — uploads that firmware, opens the USB stream, and hands you the
   samples. Full rate is 135 MS/s, which is more than most flowgraphs want, so
-  there's a decimation path down to a friendlier 33.75.
+  there's a decimation DSP path down to a friendlier 33.75.
 - **[A GNU Radio block](https://github.com/ringof/gr-rx888)** — wraps the library
   as a native `rx888.source` you can drop into a flowgraph like any other radio.
 

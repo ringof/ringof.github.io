@@ -54,8 +54,8 @@ hardware into a receiver you can actually use on Linux.
 
 ### [USB3-to-fiber link](https://github.com/ringof/usb3-fiber)
 
-A KiCad 8 board that carries USB 3.0 over optical fiber — for getting a noisy
-computer far away from a quiet antenna without dragging the hash along with it.
+A KiCad 10 board that carries USB 3.0 over optical fiber — for getting a noisy
+computer far away from the reciever and a quiet antenna without dragging the hash along with it.
 
 </div>
 
@@ -74,7 +74,7 @@ that tells you.
 ### [Loop rotator &amp; tuner](https://github.com/ringof/loop_rotator_tuner)
 
 Arduino firmware for a motor-driven magnetic loop antenna — rotate it, tune it,
-and stop fiddling with the capacitor by hand. Born at a Tuesday-night workshop.
+and stop fiddling with the capacitor by hand. Born at W1ZTL's Tuesday Night Workshop.
 
 </div>
 

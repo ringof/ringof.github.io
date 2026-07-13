@@ -1,9 +1,8 @@
 ---
-title: "Notebook — radios, hardware, and works in progress"
+title: "Ringof's Notebook — radios, hardware, and works in progress"
 description: >-
-  A workbench notebook from ringof: progress notes on open-source SDR, ham
-  radio, and hardware projects — the RX888 stack, FPGA radio, and whatever
-  else is on the bench.
+  A serial workbench notebook from ringof: progress notes on whatever
+  is on the bench.
 permalink: /notebook/
 ---
 
@@ -11,7 +10,7 @@ permalink: /notebook/
 
 <p class="lede">
 Progress notes from the bench. What I built this week, what fought back, and
-the small wins worth writing down. Kept short, kept honest.
+the small wins worth writing down. Kept short and honest.
 </p>
 
 <ul class="post-list">

@@ -13,67 +13,61 @@ description: >-
 I've been getting the RX888 firmware ready for people to actually lean on —
 which, right before you hand a thing to users, means trying to break it
 yourself. The RX888 wires the Infineon/Cypress FX3's I2C bus straight to the 
-**MS5351** clock and the **R828** tuner. In the firmware, I had elected to 
-emphasize use of the I2CWFX3 and I2CRFX3 vendor commands for configuration of
-these devices. That's deliberate: direct I2C command of those two chips
-is exactly how I'd tell a future host-app author to get *full* control of the
-receiver and largely get out of the developer's way pf getting the most of them. 
-But a control surface that raw ought to be poked at hard before trusting it to 
-not fail in the wild, so I aimed a **fuzz test** at it — writing random registers, 
-random values, random write lengths — and went hunting for latent and unrecoverable 
-faults.
+**MS5351** clock generator and the **R828** VHF tuner. In the firmware, 
+I had elected to emphasize use of the I2CWFX3 and I2CRFX3 vendor commands for 
+configuration of these devices. That's deliberate: direct I2C command of those 
+two chips is exactly how I'd tell a future host-app author to get *full* control 
+of the receiver and largely get out of the developer's way pf getting the most 
+of them. But a control surface that raw ought to be poked at hard before 
+trusting it to not fail in the wild, so I aimed a **fuzz test** at it — 
+writing random registers, random values, random write lengths — and went 
+hunting for latent and unrecoverable faults.
 
-I found an entire class of fault. When writing to select registers, the clock 
+Well, I found an entire class of fault. When writing to select registers, the clock 
 generator went quiet on the I2C bus — no ACK, response to several SCL clocks, 
 nothing. The bus itself was fine; every other device on it still chattered away. 
 The MS5351 had simply stopped responding, and it would not recover unless I performed
 I whole power-cycle of the device.
 
-## The part and the trouble in the gaps
+## The part and the knowledge gaps
 
-The Si5351 clone used in the RX888 is the Ruimeng **MS5351M** — is a lovely and versatile 
-clock generator: a crystal or clock reference, a couple of PLL and Multisynth stages, 
-three indivudually controllable outputs, and a big I2C-addressable register map that 
-tells it which frequencies to make and by what ratios. Its truly the workhorse of many 
-ham radio projects, including QRP Labs many transceivers. In this part, you are 
-setting multiplers, dividers and constants to produce the desired frequency output 
-- rather than trying to repeat it, look at the closest information we have on it:
+The RX888 uses the the Ruimeng **MS5351M** — a clone of the lovely and versatile Skyworks 
+Si5351 clock generator: with a crystal or clock reference, it gives you a set of PLL 
+and Multisynth stages, three indivudually controllable outputs, and a big I2C-addressable 
+register map that tells it which frequencies to make. It is truly the workhorse of many 
+ham radio projects, including QRP Labs many transceivers. In the '5351, you are 
+setting multiplers, dividers and other configurations to produce the desired frequency 
+output. Rather than trying to repeat how it works, look at the closest information 
+we have on it:
 
 [AN619: Si5351 in 10-MSOP/20-QFN](https://www.skyworksinc.com/-/media/Skyworks/SL/documents/public/application-notes/AN619.pdf)  
 [AN1234: Si5351 in 16-QFN](https://www.skyworksinc.com/-/media/Skyworks/SL/documents/public/application-notes/an1234-si5351-16qfn-register-map.pdf)
 
 **FYI**: the registers are slightly different between the 16-QFN and other packages!
 
-The register map isn't solid. Look for the registers and bits marked as *reserved*. 
-Silicon Labs' app notes is a little clipped about those: leave the reserved 
-bits and registers at their defaults.
+Look for the registers and bits marked as *reserved*. Skyworks' app notes 
+is a little clipped about those: leave the reserved bits and registers at their 
+defaults.
 
-What I have found is that - when you Write to these reserved registers. the 
-part stops answering to its own I2C address (0x60). Reach for a scope and 
-you find **SDA pulled low and held there** — something on the bus won't let go. 
-(I couldn't prove whether it's the chip or the master doing the holding; 
-either way the line is stuck.) No amount of bus poking brings it back; 
-nine clocks and a stop condition won't free it. The only thing that clears it 
+What I have found is that - if you write to some of these reserved registers, 
+the part stops answering to its own I2C address (0x60). Reach for a scope and 
+you find **SDA pulled low and held there**. No amount of bus poking brings it 
+back; nine clocks and a stop condition won't free it. The only thing that clears it 
 is a cold power cycle, which reloads the part's power-on defaults from its NVM.
 
-There's a stranger cousin to the dead-quiet mode, too. On some writes, the chip
-stops answering at 0x60 and instead pops up at a scatter of **other** I2C
-addresses — a different, seemingly random set on each pass. My best guess is
-that we're glimpsing how the part handles its internal one-time-programmable
-trim, knocked sideways. That one's a rabbit hole for another day.
+There's a stranger cousin to the dead-quiet mode, too. On some **reserved** register
+writes, the chip stops answering at 0x60 and instead pops up at a scatter 
+of **other** I2C addresses. 
 
-## It isn't just the clone — and the clone isn't documented
-
-The MS5351M is a clone, so finding this on an RX888 only proves something about
-*that* part — and here's the catch: its [datasheet](/assets/ms5351m-datasheet.pdf) 
-is no help. Ten pages of block diagram, pinout, and AC/DC specs, 
-with **no register map at all.** Everything we "know" about the MS5351M's registers 
+The **reserved** register definitions are presumption based on the Skyworks App Notes. 
+The MS5351M is a clone, and sadly, its [datasheet](/assets/ms5351m-datasheet.pdf) 
+is no help. Ten pages of block diagram, pinout, and AC/DC specs, with 
+**no register map at all.**  Everything we "know" about the MS5351M's registers 
 is inferred from the Si5351A and confirmed on the bench, not written down 
-anywhere by Ruimeng. As far as testing shows, the two line up 
-— the clone's registers appear to do the same things the Si5351A's
-do.
+anywhere by Ruimeng. As far as testing shows, the two line up — the clone's registers 
+appear to do the same things the Si5351A's do.
 
-The *failure*, happily, isn't just the clone's either. **George Byrkit (K9TRV)**
+The reserved register *failure*, isn't just in the clone. **George Byrkit (K9TRV)**
 independently ran tests on this same idea — systematic writes to reserved registers, then
 a fuzz pass hammering random addresses and write lengths — against *genuine*
 Skyworks parts, both an **Si5351A** and an **Si5351C**, and he hit the same class
@@ -82,25 +76,21 @@ SDA stuck low, power-cycle-only. Same fault, different silicon.
 
 The one concrete *difference* we've turned up is small and telling: exactly
 which low-address registers trigger the vanishing act isn't identical between
-the clone and the genuine parts — the MS5351M draws its forbidden lines in
-slightly different places. We're comparing notes across parts (and deliberately
-not peeking at each other's register lists yet, to keep from biasing the
-results), so the full per-register, per-variant map is still a work in progress.
-But the headline holds: reserved means reserved, on the clone and the genuine
-article alike.
+the clone and the genuine parts.
 
-## Back to the bench: all 256 registers
+## MS5351 on the bench....
 
-That "work in progress" didn't sit well with me, so I gave the MS5351M its own
-bench — not the RX888 this time, but an FT4232H in MPSSE mode bit-banging I2C
-straight at a bare clone, with a bus-health check after every single write and a
+I felt it was worth the effort to reduce the variables, and I bought a little 
+MS5351M board from QRP Labs to dive into this into detail. I gave the MS5351M 
+its own bench — not the RX888 this time, but an FT4232H in MPSSE mode bit-banging 
+I2C straight at a bare clone, with a bus-health check after every single write and a
 `uhubctl` port-power cycler wired in to recover from each lockup and keep going.
 That let me walk all 256 register addresses in isolation — 693 writes in all —
 and sort every one into a bucket.
 
 The headline is almost the opposite of what the fuzzing made it feel like: the
 MS5351M is *forgiving.* Of 256 registers, exactly **two** are genuinely
-dangerous. Most reserved writes do nothing scary at all.
+dangerous. Most reserved writes do nothing brick-inducing at all.
 
 | Class | Count |
 |---|---|
@@ -116,7 +106,7 @@ This is the culprit from the RX888, and on the bench I could finally watch it
 cleanly: write any *accepted* non-zero value to reg 5 and SDA drops low and stays
 there. The chip doesn't go dark, exactly — it now ACKs **every** address on the
 bus and returns `0x00` to every read. So it isn't the master hung on a stretched
-clock; it's the chip itself, wedged and babbling zeros. Only a power cycle brings
+clock; it's the chip itself, wedged. Only a power cycle brings
 it back. (That settles the open question from earlier: on a controlled master,
 it's plainly the '5351 holding the line.)
 
@@ -132,35 +122,34 @@ between is NAKed outright:
 | `0xF0`–`0xFF` | `1111` | ACK — **lockup** |
 
 Second, a **write-lockout**: once you NAK reg 5 with a "middle" value, it stops
-accepting *any* write to reg 5 until the next power cycle. It sulks.
+accepting *any* write to reg 5 until the next power cycle.
 
 ### Reg 7 — the address register nobody documented
 
 Remember the stranger cousin — the chip vanishing from `0x60` and popping up at
-other addresses? Here's a big piece of it. Reg 7 is an **undocumented I2C address
-register.** Its top nibble ORs straight into the device address:
+other addresses? Here's a big piece of it. Reg 7 appears to act like  an 
+**undocumented I2C address register.** Its top nibble ORs straight 
+into the device address:
 
 ```
 effective address = 0x60 | (reg7 >> 4)   →   0x60 … 0x6F
 ```
 
 So a stray write to reg 7 doesn't hang anything — it *moves the chip.* From a
-host still politely knocking at `0x60`, a part quietly answering at `0x64` looks
-exactly like one that disappeared. Not (only) scrambled trim, then: a real
-address register that isn't in any datasheet. The base `0x60` is hardwired — reg
-7 can only OR bits *in* — and a power cycle puts it back.
+host looking for it on `0x60`, a part quietly answering at `0x64` looks
+exactly like one that disappeared. The base `0x60` is hardwired — reg
+7 can only OR bits *in* — and a power cycle puts it back to `0x60`.
 
-### The clone is its own animal
+### How the MS5351M differs...
 
-The sweep also put numbers behind "the two line up." Mostly they do — but the
-MS5351M has a personality:
+The bench sweep also put numbers behind how the clone differs from the Si5351A.
+Mostly they do align — but the MS5351M has a personality:
 
 - **No holes.** All 256 addresses ACK. A genuine Si5351's map has gaps above reg
   187; the clone answers everywhere.
 - **Three outputs, in silicon.** MS0–MS2 (regs 42–65) are full R/W multisynths;
   MS3–MS7 (regs 66–91) read back `0xFF` and silently swallow writes. It isn't a
   fuse or a software lock — the MS5351M is *genuinely* a three-output part.
-- **A movable address** (reg 7), where the genuine part's is fixed.
 - A scattering of **non-zero defaults in reserved space** — even reg 177, the
   PLL-reset register, powers up as `0x0C` with reserved bits set — plus a couple
   of **value-filtered** registers that accept some bytes and NAK others.
@@ -216,14 +205,11 @@ a receiver into a paperweight.
   without a register map, so treat the Si5351A's as your reference — but assume
   the reserved traps are just as real, and possibly at slightly different
   addresses.
-- **If it goes silent, look at SDA.** In our tests it sat stuck low and only a
-  power cycle recovered it — nine-clock bus recovery didn't help. (We couldn't
-  prove whether the chip or the master held the line.) And "silent" isn't the
-  only failure — sometimes the part answered on scattered wrong addresses
-  instead.
 
 None of this lives in the cheerful "getting started" part of the datasheet, and
 that's exactly why it's worth writing down. The '5351 is a very useful chip that
 will happily make you almost any frequency you ask for — right up until touch the 
-RESERVED bits. This all said...I do wonder if there is some recovery sequence we 
+RESERVED bits. 
+
+This all said...I do wonder if there is some recovery sequence we 
 have yet to discover.

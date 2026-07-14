@@ -17,26 +17,26 @@ yourself. The RX888 wires the Infineon/Cypress FX3's I2C bus straight to the
 I had elected to emphasize use of the I2CWFX3 and I2CRFX3 vendor commands for 
 configuration of these devices. That's deliberate: direct I2C command of those 
 two chips is exactly how I'd tell a future host-app author to get *full* control 
-of the receiver and largely get out of the developer's way pf getting the most 
+of the receiver and largely get out of the developer's way of getting the most 
 of them. But a control surface that raw ought to be poked at hard before 
 trusting it to not fail in the wild, so I aimed a **fuzz test** at it — 
 writing random registers, random values, random write lengths — and went 
 hunting for latent and unrecoverable faults.
 
 Well, I found an entire class of fault. When writing to select registers, the clock 
-generator went quiet on the I2C bus — no ACK, response to several SCL clocks, 
+generator went quiet on the I2C bus — no ACK, no response to several SCL clocks, 
 nothing. The bus itself was fine; every other device on it still chattered away. 
 The MS5351 had simply stopped responding, and it would not recover unless I performed
-I whole power-cycle of the device.
+a whole power-cycle of the device.
 
 ## The part and the knowledge gaps
 
-The RX888 uses the the Ruimeng **MS5351M** — a clone of the lovely and versatile Skyworks 
+The RX888 uses the Ruimeng **MS5351M** — a clone of the lovely and versatile Skyworks 
 Si5351 clock generator: with a crystal or clock reference, it gives you a set of PLL 
-and Multisynth stages, three indivudually controllable outputs, and a big I2C-addressable 
+and Multisynth stages, three individually controllable outputs, and a big I2C-addressable 
 register map that tells it which frequencies to make. It is truly the workhorse of many 
-ham radio projects, including QRP Labs many transceivers. In the '5351, you are 
-setting multiplers, dividers and other configurations to produce the desired frequency 
+ham radio projects, including QRP Labs' many transceivers. In the '5351, you are 
+setting multipliers, dividers and other configurations to produce the desired frequency 
 output. Rather than trying to repeat how it works, look at the closest information 
 we have on it:
 
@@ -46,7 +46,7 @@ we have on it:
 **FYI**: the registers are slightly different between the 16-QFN and other packages!
 
 Look for the registers and bits marked as *reserved*. Skyworks' app notes 
-is a little clipped about those: leave the reserved bits and registers at their 
+are a little clipped about those: leave the reserved bits and registers at their 
 defaults.
 
 What I have found is that - if you write to some of these reserved registers, 
@@ -59,7 +59,7 @@ There's a stranger cousin to the dead-quiet mode, too. On some **reserved** regi
 writes, the chip stops answering at 0x60 and instead pops up at a scatter 
 of **other** I2C addresses. 
 
-The **reserved** register definitions are presumption based on the Skyworks App Notes. 
+The **reserved** register definitions are presumptions based on the Skyworks App Notes. 
 The MS5351M is a clone, and sadly, its [datasheet](/assets/ms5351m-datasheet.pdf) 
 is no help. Ten pages of block diagram, pinout, and AC/DC specs, with 
 **no register map at all.**  Everything we "know" about the MS5351M's registers 
@@ -67,7 +67,7 @@ is inferred from the Si5351A and confirmed on the bench, not written down
 anywhere by Ruimeng. As far as testing shows, the two line up — the clone's registers 
 appear to do the same things the Si5351A's do.
 
-The reserved register *failure*, isn't just in the clone. **George Byrkit (K9TRV)**
+The reserved register *failure* isn't just in the clone. **George Byrkit (K9TRV)**
 independently ran tests on this same idea — systematic writes to reserved registers, then
 a fuzz pass hammering random addresses and write lengths — against *genuine*
 Skyworks parts, both an **Si5351A** and an **Si5351C**, and he hit the same class
@@ -81,7 +81,7 @@ the clone and the genuine parts.
 ## MS5351 on the bench....
 
 I felt it was worth the effort to reduce the variables, and I bought a little 
-MS5351M board from QRP Labs to dive into this into detail. I gave the MS5351M 
+MS5351M board from QRP Labs to dive into this in detail. I gave the MS5351M 
 its own bench — not the RX888 this time, but an FT4232H in MPSSE mode bit-banging 
 I2C straight at a bare clone, with a bus-health check after every single write and a
 `uhubctl` port-power cycler wired in to recover from each lockup and keep going.
@@ -127,7 +127,7 @@ accepting *any* write to reg 5 until the next power cycle.
 ### Reg 7 — the address register nobody documented
 
 Remember the stranger cousin — the chip vanishing from `0x60` and popping up at
-other addresses? Here's a big piece of it. Reg 7 appears to act like  an 
+other addresses? Here's a big piece of it. Reg 7 appears to act like an 
 **undocumented I2C address register.** Its top nibble ORs straight 
 into the device address:
 
@@ -191,7 +191,7 @@ a receiver into a paperweight.
 
 ## The lessons learned
 
-- **Only write registers not called RESERVED** If it isn't in the datasheet with a
+- **Only write registers not called RESERVED.** If it isn't in the datasheet with a
   stated purpose, don't touch it.
 - **Avoid blind read-modify-write.** Reserved bits live inside otherwise-writable
   registers, so a careless "read, OR in a bit, write it back" can disturb one you
@@ -208,7 +208,7 @@ a receiver into a paperweight.
 
 None of this lives in the cheerful "getting started" part of the datasheet, and
 that's exactly why it's worth writing down. The '5351 is a very useful chip that
-will happily make you almost any frequency you ask for — right up until touch the 
+will happily make you almost any frequency you ask for — right up until you touch the 
 RESERVED bits. 
 
 This all said...I do wonder if there is some recovery sequence we 

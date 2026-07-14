@@ -89,6 +89,93 @@ results), so the full per-register, per-variant map is still a work in progress.
 But the headline holds: reserved means reserved, on the clone and the genuine
 article alike.
 
+## Back to the bench: all 256 registers
+
+That "work in progress" didn't sit well with me, so I gave the MS5351M its own
+bench — not the RX888 this time, but an FT4232H in MPSSE mode bit-banging I2C
+straight at a bare clone, with a bus-health check after every single write and a
+`uhubctl` port-power cycler wired in to recover from each lockup and keep going.
+That let me walk all 256 register addresses in isolation — 693 writes in all —
+and sort every one into a bucket.
+
+The headline is almost the opposite of what the fuzzing made it feel like: the
+MS5351M is *forgiving.* Of 256 registers, exactly **two** are genuinely
+dangerous. Most reserved writes do nothing scary at all.
+
+| Class | Count |
+|---|---|
+| R/W (defined, reserved, undefined alike) | 194 |
+| Read-only | 27 |
+| **Dangerous** | **2** — reg 5, reg 7 |
+| Value-filtered (ACK some values, NAK others) | 2 |
+| Side-effect (partial / indirect writes) | 5 |
+
+### Reg 5 — the one that jams SDA
+
+This is the culprit from the RX888, and on the bench I could finally watch it
+cleanly: write any *accepted* non-zero value to reg 5 and SDA drops low and stays
+there. The chip doesn't go dark, exactly — it now ACKs **every** address on the
+bus and returns `0x00` to every read. So it isn't the master hung on a stretched
+clock; it's the chip itself, wedged and babbling zeros. Only a power cycle brings
+it back. (That settles the open question from earlier: on a controlled master,
+it's plainly the '5351 holding the line.)
+
+Two wrinkles I didn't expect. First, an **acceptance gate** — the chip only ACKs
+a write to reg 5 when the top nibble is all-zeros or all-ones; everything in
+between is NAKed outright:
+
+| Value | Top nibble | Result |
+|---|---|---|
+| `0x00` | `0000` | ACK — safe (the default) |
+| `0x01`–`0x0F` | `0000` | ACK — **lockup** |
+| `0x10`–`0xEF` | mixed | NAK — rejected |
+| `0xF0`–`0xFF` | `1111` | ACK — **lockup** |
+
+Second, a **write-lockout**: once you NAK reg 5 with a "middle" value, it stops
+accepting *any* write to reg 5 until the next power cycle. It sulks.
+
+### Reg 7 — the address register nobody documented
+
+Remember the stranger cousin — the chip vanishing from `0x60` and popping up at
+other addresses? Here's a big piece of it. Reg 7 is an **undocumented I2C address
+register.** Its top nibble ORs straight into the device address:
+
+```
+effective address = 0x60 | (reg7 >> 4)   →   0x60 … 0x6F
+```
+
+So a stray write to reg 7 doesn't hang anything — it *moves the chip.* From a
+host still politely knocking at `0x60`, a part quietly answering at `0x64` looks
+exactly like one that disappeared. Not (only) scrambled trim, then: a real
+address register that isn't in any datasheet. The base `0x60` is hardwired — reg
+7 can only OR bits *in* — and a power cycle puts it back.
+
+### The clone is its own animal
+
+The sweep also put numbers behind "the two line up." Mostly they do — but the
+MS5351M has a personality:
+
+- **No holes.** All 256 addresses ACK. A genuine Si5351's map has gaps above reg
+  187; the clone answers everywhere.
+- **Three outputs, in silicon.** MS0–MS2 (regs 42–65) are full R/W multisynths;
+  MS3–MS7 (regs 66–91) read back `0xFF` and silently swallow writes. It isn't a
+  fuse or a software lock — the MS5351M is *genuinely* a three-output part.
+- **A movable address** (reg 7), where the genuine part's is fixed.
+- A scattering of **non-zero defaults in reserved space** — even reg 177, the
+  PLL-reset register, powers up as `0x0C` with reserved bits set — plus a couple
+  of **value-filtered** registers that accept some bytes and NAK others.
+
+And the oddest find: a few registers aren't static at all. **Reg 222 drifts
+continuously and seems to track temperature** — it climbs as the chip cools, with
+the occasional `0xFF` spike that looks like a read landing mid-conversion; reg
+223 sits at `0x78` and jumps to `0xFF` at the very same moments. Undocumented
+on-die telemetry nobody advertises.
+
+The neat part: both dangerous registers — 5 and 7 — fall inside AN619's reserved
+**4–8** block, which is exactly the range the firmware fence below already keeps
+the host out of. The conservative "don't let the host near 4–8" guard turns out
+to cover precisely the two that bite.
+
 ## The fix for the RX888
 
 For an RX888 user, "power-cycling the receiver" is a lousy recovery story, so the

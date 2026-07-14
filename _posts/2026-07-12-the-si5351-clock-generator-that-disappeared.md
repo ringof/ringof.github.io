@@ -142,28 +142,45 @@ exactly like one that disappeared. The base `0x60` is hardwired — reg
 
 ### How the MS5351M differs...
 
-The bench sweep also put numbers behind how the clone differs from the Si5351A.
-Mostly they do align — but the MS5351M has a personality:
+I didn't have to take anyone's word for the genuine part in the end — I finally
+put a real **Si5351A** on the bench myself, hung off *Port B* of the same
+FT4232H so it and the clone ran on identical timing, the same recovery rig, and
+the same 256-address walk, live and side by side. Nothing in this comparison is
+second-hand now.
 
-- **No holes.** All 256 addresses ACK. A genuine Si5351's map has gaps above reg
-  187; the clone answers everywhere.
-- **Three outputs, in silicon.** MS0–MS2 (regs 42–65) are full R/W multisynths;
-  MS3–MS7 (regs 66–91) read back `0xFF` and silently swallow writes. It isn't a
-  fuse or a software lock — the MS5351M is *genuinely* a three-output part.
-- A scattering of **non-zero defaults in reserved space** — even reg 177, the
-  PLL-reset register, powers up as `0x0C` with reserved bits set — plus a couple
-  of **value-filtered** registers that accept some bytes and NAK others.
+The headline: **the trap moved by exactly one register.** On the MS5351M the
+SDA-jamming lockup lives at **reg 5**; on the genuine Si5351A reg 5 is a
+harmless R/W register — it even powers up at `0xFF` — and the lockup sits at
+**reg 6** instead. And reg 7, the clone's undocumented address-shift trick, is a
+*third* SDA lockup on the genuine part, no address games at all. Same class of
+fault, shuffled one door over. That's exactly the kind of thing that turns a
+working driver into a brick when you move it between a clone and a real part.
 
-And the oddest find: a few registers aren't static at all. **Reg 222 drifts
-continuously and seems to track temperature** — it climbs as the chip cools, with
-the occasional `0xFF` spike that looks like a read landing mid-conversion; reg
-223 sits at `0x78` and jumps to `0xFF` at the very same moments. Undocumented
-on-die telemetry nobody advertises.
+A few more differences the sweep pinned down:
 
-The neat part: both dangerous registers — 5 and 7 — fall inside AN619's reserved
-**4–8** block, which is exactly the range the firmware fence below already keeps
-the host out of. The conservative "don't let the host near 4–8" guard turns out
-to cover precisely the two that bite.
+- **"No holes" isn't a clone tell.** Both parts ACK all 256 addresses on the
+  bus — the reserved gaps in the datasheet are on paper, not something the
+  silicon refuses. Don't count on a NAK to protect you from a bad address.
+- **Three outputs vs. eight.** On the clone, MS3–MS7 (regs 66–91) read back
+  `0xFF` and silently swallow writes — the MS5351M is *genuinely* a three-output
+  part. On the Si5351A those same registers are live R/W at `0x00`: it's an
+  eight-output die in a three-output package, the extra multisynths sitting
+  there unbonded.
+- **REVID.** Reg 0 reads `1` on the clone and `0` on the genuine — a cheap first
+  way to tell them apart in code.
+
+And the oddest find is clone-only: on the MS5351M a few registers aren't static
+at all. **Reg 222 drifts continuously and seems to track temperature** — it
+climbs as the chip cools, with the occasional `0xFF` spike that looks like a
+read landing mid-conversion, and reg 223 sits at `0x78` and jumps to `0xFF` at
+the very same moments. On the genuine Si5351A both just sit at a flat `0xFF`.
+Undocumented on-die telemetry the clone has and the original doesn't.
+
+The neat part: every dangerous register we turned up — 5 and 7 on the clone, 6
+and 7 on the genuine part — falls inside AN619's reserved **4–8** block, which is
+exactly the range the firmware fence below already keeps the host out of. The
+conservative "don't let the host near 4–8" guard turns out to cover precisely
+the registers that bite, on either silicon.
 
 ## The fix for the RX888
 

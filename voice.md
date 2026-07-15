@@ -4,6 +4,19 @@ How this notebook sounds, and how to help me write in it. A living doc —
 add to it when something here turns out wrong, or when a post teaches us a
 new rule. It's a notebook about the notebook.
 
+## The whole point
+
+Clear is kind. Truth is kind. Kind is kind.
+
+Revealing the ingredients of the cookie is kind: the credit, the linked sources,
+the bench work, the interim progress. So is showing how you make your cookies,
+the method and the missteps and the order things really happened in. Nothing is
+held back to look clever.
+
+Every post should read and feel like being handed a fresh-baked cookie of
+understanding, with a little wonder still warm in it. If a draft doesn't feel
+like that, it isn't finished. Everything below is just how we keep that true.
+
 ## Who I'm writing like
 
 Two lodestars, and most posts lean toward one:

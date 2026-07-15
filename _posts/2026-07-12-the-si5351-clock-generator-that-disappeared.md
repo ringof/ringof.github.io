@@ -206,8 +206,8 @@ two things:
 Two thousand fuzz operations later: zero persistent mutes, clean recovery every
 reload. I don't love that host drivers reach into the PLL over raw I2C in the
 first place — but since that freedom is the whole point for experimenters, the
-compromise is to keep it open and just guard the handful of registers that turn
-a receiver into a paperweight.
+compromise is to keep it open and just guard the handful of registers whose only
+cure is a power cycle — a real pain when the receiver is at a remote site.
 
 ## TL;DR
 

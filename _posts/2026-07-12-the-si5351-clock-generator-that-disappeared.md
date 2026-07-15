@@ -10,7 +10,7 @@ description: >-
   firmware guard I added.
 ---
 
-I'd was getting the RX888 firmware ready for people to actually lean on —
+I'd been getting the RX888 firmware ready for people to actually lean on —
 which, right before you hand a thing to users, means trying to break it
 yourself. The RX888 wires the Infineon/Cypress FX3's I2C bus straight to the 
 **MS5351** clock generator and the **R828** VHF tuner. In the firmware, 
@@ -79,7 +79,7 @@ the clone and the genuine parts.
 
 ## MS5351 on the bench....
 
-I felt it was worth the effort to reduce the uncertainly, and I bought a little 
+I felt it was worth the effort to reduce the uncertainty, and I bought a little 
 MS5351M board from QRP Labs to dive into this in detail. I gave the MS5351M 
 its own bench — not the RX888 this time, but an FT4232H in MPSSE mode bit-banging 
 I2C straight at a bare clone, with a bus-health check after every single write and a
@@ -95,18 +95,18 @@ dangerous. Most reserved writes do nothing brick-inducing at all.
 |---|---|
 | R/W (defined, reserved, undefined alike) | 194 |
 | Read-only | 27 |
-| **Dangerous** | **2** — reg 0x05, 0x07 |
+| **Dangerous** | **2** — reg 5, reg 7 |
 | Value-filtered (ACK some values, NAK others) | 2 |
 | Side-effect (partial / indirect writes) | 5 |
 
-### 0x05 — the one that jams SDA
+### Reg 5 — the one that jams SDA
 
 This is the culprit from the RX888, and on the bench I could finally watch it
 cleanly: write any *accepted* non-zero value to reg 5 and SDA drops low and stays
 there.
 
 Two wrinkles I didn't expect. First, an **acceptance gate** — the chip only ACKs
-a write to register 0x05 when the top nibble is all-zeros or all-ones; everything in
+a write to reg 5 when the top nibble is all-zeros or all-ones; everything in
 between is NAKed outright:
 
 | Value | Top nibble | Result |
@@ -116,13 +116,13 @@ between is NAKed outright:
 | `0x10`–`0xEF` | mixed | NAK — rejected |
 | `0xF0`–`0xFF` | `1111` | ACK — **lockup** |
 
-Second, a **write-lockout**: once you NAK register 0x05 with a "middle" value, it stops
-accepting *any* write to 0x05 until the next power cycle.
+Second, a **write-lockout**: once you NAK reg 5 with a "middle" value, it stops
+accepting *any* write to reg 5 until the next power cycle.
 
-### 0x07 — the undocumented address register
+### Reg 7 — the undocumented address register
 
 Remember the stranger cousin — the chip vanishing from `0x60` and popping up at
-other addresses? Here's a big piece of it. 0x07 appears to act like an 
+other addresses? Here's a big piece of it. Reg 7 appears to act like an 
 **undocumented I2C address register.** Its top nibble ORs straight 
 into the device address:
 
@@ -130,7 +130,7 @@ into the device address:
 effective address = 0x60 | (reg7 >> 4)   →   0x60 … 0x6F
 ```
 
-So a stray write to 0x07 doesn't hang anything — it *moves the chip.* From a
+So a stray write to reg 7 doesn't hang anything — it *moves the chip.* From a
 host looking for it on `0x60`, a part quietly answering at `0x64` looks
 exactly like one that disappeared. The base `0x60` is hardwired — reg
 7 can only OR bits *in* — and a power cycle puts it back to `0x60`.
@@ -139,8 +139,8 @@ exactly like one that disappeared. The base `0x60` is hardwired — reg
 
 Beyond the two dangerous registers, the MS5351M has a personality worth noting:
 
-- **Genuinely three outputs.** MS0–MS2 (registers 0x42–0x65) are full R/W multisynths;
-  MS3–MS7 (registers 0x66–0x91) read back `0xFF` and silently swallow writes. It isn't a
+- **Genuinely three outputs.** MS0–MS2 (regs 42–65) are full R/W multisynths;
+  MS3–MS7 (regs 66–91) read back `0xFF` and silently swallow writes. It isn't a
   fuse or a software lock — in the clone's silicon there are only three.
 - **On-die telemetry nobody advertises.** A couple of registers aren't static at
   all. **Reg 222 drifts continuously and seems to track temperature** — it climbs

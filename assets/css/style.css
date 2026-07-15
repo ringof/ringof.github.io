@@ -279,6 +279,24 @@ a.post-tag:hover {
   color: var(--accent-2);
   font-weight: 700;
 }
+.post-content table {
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-size: .92rem;
+  max-width: 100%;
+}
+.post-content th,
+.post-content td {
+  border: 1px solid var(--border);
+  padding: .3rem .6rem;
+  text-align: left;
+  vertical-align: top;
+}
+.post-content thead th {
+  background: var(--card);
+  font-weight: 700;
+}
+.post-content td code { background: var(--code-bg); }
 .post-content blockquote {
   margin: 1.25rem 0;
   padding: .25rem 0 .25rem 1rem;

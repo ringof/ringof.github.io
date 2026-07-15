@@ -65,8 +65,12 @@ punchy. The trust is the whole point.
 - **Em-dashes: sparingly.** A whole post should sit around five, not forty. Use
   commas, colons, and parentheses for asides; keep the dash for the few places
   it does real work (an abrupt reveal, a punch at the end of a line).
-- **Register numbers in decimal; values and addresses in hex.** `reg 5`,
-  `regs 66–91` — but `0x60`, `0xFF`, `0x00`. Don't slap `0x` on a decimal number.
+- **Follow the reference document's notation.** Use the numbering and naming the
+  source uses: the datasheet, the app note, or an earlier discussion. For the
+  Si5351 that meant AN619's register numbers (decimal), with values and addresses
+  in hex the way the app note writes them. Barring a reference, use whatever
+  numbering makes sense in context. Either way, don't slap `0x` on a decimal
+  number.
 - **Titles are evocative, a little mysterious.** "The Si5351 clock generator
   that disappeared…", "The GPSDO I thought I understood", "A loop, a stepper,
   and a Tuesday night." A trailing "…" is welcome.
@@ -82,9 +86,12 @@ punchy. The trust is the whole point.
 
 ## Endings
 
-Land on wonder or an open door, not a bow. "I do wonder if there is some
-recovery sequence we have yet to discover." Leaving a question open invites the
-reader in — that's the JF1OZL move, and it fits even the Phil posts.
+End where the story ends. Don't manufacture a cliffhanger or bolt on wonder for
+effect. For Phil and JF1OZL the ending was usually just the end of the project,
+so if the work is done, close it there. If the story genuinely stops partway,
+it's fine to stop there honestly; Phil often did, and sometimes came back years
+later to finish it. The open question at the close of the Si5351 post works
+because it's true, not because it's a device.
 
 ## How to help me edit
 

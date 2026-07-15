@@ -140,13 +140,26 @@ host looking for it on `0x60`, a part quietly answering at `0x64` looks
 exactly like one that disappeared. The base `0x60` is hardwired — reg
 7 can only OR bits *in* — and a power cycle puts it back to `0x60`.
 
-### How the MS5351M differs...
+### The clone's other quirks
+
+Beyond the two dangerous registers, the MS5351M has a personality worth noting:
+
+- **Genuinely three outputs.** MS0–MS2 (regs 42–65) are full R/W multisynths;
+  MS3–MS7 (regs 66–91) read back `0xFF` and silently swallow writes. It isn't a
+  fuse or a software lock — in the clone's silicon there are only three.
+- **On-die telemetry nobody advertises.** A couple of registers aren't static at
+  all. **Reg 222 drifts continuously and seems to track temperature** — it climbs
+  as the chip cools, with the occasional `0xFF` spike that looks like a read
+  landing mid-conversion; reg 223 sits at `0x78` and jumps to `0xFF` at the very
+  same moments.
+
+## The genuine article, side by side
 
 I didn't have to take anyone's word for the genuine part in the end — I finally
 put a real **Si5351A** on the bench myself, hung off *Port B* of the same
 FT4232H so it and the clone ran on identical timing, the same recovery rig, and
 the same 256-address walk, live and side by side. Nothing in this comparison is
-second-hand now.
+second-hand.
 
 The headline: **the trap moved by exactly one register.** On the MS5351M the
 SDA-jamming lockup lives at **reg 5**; on the genuine Si5351A reg 5 is a
@@ -156,25 +169,18 @@ harmless R/W register — it even powers up at `0xFF` — and the lockup sits at
 fault, shuffled one door over. That's exactly the kind of thing that turns a
 working driver into a brick when you move it between a clone and a real part.
 
-A few more differences the sweep pinned down:
+The rest of the sweep filled in the picture:
 
 - **"No holes" isn't a clone tell.** Both parts ACK all 256 addresses on the
   bus — the reserved gaps in the datasheet are on paper, not something the
   silicon refuses. Don't count on a NAK to protect you from a bad address.
-- **Three outputs vs. eight.** On the clone, MS3–MS7 (regs 66–91) read back
-  `0xFF` and silently swallow writes — the MS5351M is *genuinely* a three-output
-  part. On the Si5351A those same registers are live R/W at `0x00`: it's an
-  eight-output die in a three-output package, the extra multisynths sitting
-  there unbonded.
+- **Eight-output die, three-output package.** Where the clone hardwires MS3–MS7
+  to `0xFF`, the Si5351A has those same registers live and R/W at `0x00` — the
+  extra multisynths are really on the die, just not bonded to pins.
 - **REVID.** Reg 0 reads `1` on the clone and `0` on the genuine — a cheap first
   way to tell them apart in code.
-
-And the oddest find is clone-only: on the MS5351M a few registers aren't static
-at all. **Reg 222 drifts continuously and seems to track temperature** — it
-climbs as the chip cools, with the occasional `0xFF` spike that looks like a
-read landing mid-conversion, and reg 223 sits at `0x78` and jumps to `0xFF` at
-the very same moments. On the genuine Si5351A both just sit at a flat `0xFF`.
-Undocumented on-die telemetry the clone has and the original doesn't.
+- **No temperature register.** The clone's live reg 222/223 telemetry is simply
+  absent on the genuine part; both sit at a flat `0xFF`.
 
 The neat part: every dangerous register we turned up — 5 and 7 on the clone, 6
 and 7 on the genuine part — falls inside AN619's reserved **4–8** block, which is
@@ -205,6 +211,22 @@ reload. I don't love that host drivers reach into the PLL over raw I2C in the
 first place — but since that freedom is the whole point for experimenters, the
 compromise is to keep it open and just guard the handful of registers that turn
 a receiver into a paperweight.
+
+## TL;DR
+
+The whole clone-versus-genuine comparison on one card:
+
+| | MS5351M (clone) | Si5351A (genuine) |
+|---|---|---|
+| REVID (reg 0) | `1` | `0` |
+| SDA-lockup register | **reg 5** | **reg 6** |
+| Reg 7 | address shift (recoverable) | SDA lockup |
+| I2C address remap | yes, via reg 7 | no |
+| Dangerous registers | 5, 7 | 6, 7 |
+| Outputs in silicon | 3 (MS3–MS7 hardwired `0xFF`) | 8-output die, 3 bonded |
+| Reg 222 / 223 | live, temperature-tracking | static `0xFF` |
+| All 256 addresses ACK | yes | yes |
+| Recovery | power-cycle (reg 7 shift: rewrite reg 7) | power-cycle |
 
 ## The lessons learned
 

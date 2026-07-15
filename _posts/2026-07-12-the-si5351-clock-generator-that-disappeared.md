@@ -10,7 +10,7 @@ description: >-
   firmware guard I added.
 ---
 
-I've been getting the RX888 firmware ready for people to actually lean on —
+I'd was getting the RX888 firmware ready for people to actually lean on —
 which, right before you hand a thing to users, means trying to break it
 yourself. The RX888 wires the Infineon/Cypress FX3's I2C bus straight to the 
 **MS5351** clock generator and the **R828** VHF tuner. In the firmware, 
@@ -31,21 +31,20 @@ a whole power-cycle of the device.
 
 ## The part and the knowledge gaps
 
-The RX888 uses the Ruimeng **MS5351M** — a clone of the lovely and versatile Skyworks 
-Si5351 clock generator: with a crystal or clock reference, it gives you a set of PLL 
-and Multisynth stages, three individually controllable outputs, and a big I2C-addressable 
-register map that tells it which frequencies to make. It is truly the workhorse of many 
-ham radio projects, including QRP Labs' many transceivers. In the '5351, you are 
-setting multipliers, dividers and other configurations to produce the desired frequency 
-output. Rather than trying to repeat how it works, look at the closest information 
-we have on it:
+The RX888 uses the Ruimeng **MS5351M** — a clone of the versatile Skyworks 
+Si5351 clock generator: with a crystal or clock reference, it gives individually controllable 
+outputs, through an I2C-addressable register map for configuring all of that. It is 
+truly the workhorse of many ham radio projects, including QRP Labs' many transceivers. 
+In the '5351, you are setting multipliers, dividers and other configurations to 
+produce the desired frequency output. Rather than trying to repeat how it works, 
+look at the closest information we have on it:
 
 [AN619: Si5351 in 10-MSOP/20-QFN](https://www.skyworksinc.com/-/media/Skyworks/SL/documents/public/application-notes/AN619.pdf)  
 [AN1234: Si5351 in 16-QFN](https://www.skyworksinc.com/-/media/Skyworks/SL/documents/public/application-notes/an1234-si5351-16qfn-register-map.pdf)
 
 **FYI**: the registers are slightly different between the 16-QFN and other packages!
 
-Look for the registers and bits marked as *reserved*. Skyworks' app notes 
+Look specifically at the registers and bits marked as *reserved*. Skyworks' app notes 
 are a little clipped about those: leave the reserved bits and registers at their 
 defaults.
 
@@ -80,7 +79,7 @@ the clone and the genuine parts.
 
 ## MS5351 on the bench....
 
-I felt it was worth the effort to reduce the variables, and I bought a little 
+I felt it was worth the effort to reduce the uncertainly, and I bought a little 
 MS5351M board from QRP Labs to dive into this in detail. I gave the MS5351M 
 its own bench — not the RX888 this time, but an FT4232H in MPSSE mode bit-banging 
 I2C straight at a bare clone, with a bus-health check after every single write and a
@@ -88,30 +87,26 @@ I2C straight at a bare clone, with a bus-health check after every single write a
 That let me walk all 256 register addresses in isolation — 693 writes in all —
 and sort every one into a bucket.
 
-The headline is almost the opposite of what the fuzzing made it feel like: the
-MS5351M is *forgiving.* Of 256 registers, exactly **two** are genuinely
+The headline is almost the opposite of what the fuzzing results made it feel 
+like: the MS5351M is *forgiving.* Of 256 registers, exactly **two** are genuinely
 dangerous. Most reserved writes do nothing brick-inducing at all.
 
 | Class | Count |
 |---|---|
 | R/W (defined, reserved, undefined alike) | 194 |
 | Read-only | 27 |
-| **Dangerous** | **2** — reg 5, reg 7 |
+| **Dangerous** | **2** — reg 0x05, 0x07 |
 | Value-filtered (ACK some values, NAK others) | 2 |
 | Side-effect (partial / indirect writes) | 5 |
 
-### Reg 5 — the one that jams SDA
+### 0x05 — the one that jams SDA
 
 This is the culprit from the RX888, and on the bench I could finally watch it
 cleanly: write any *accepted* non-zero value to reg 5 and SDA drops low and stays
-there. The chip doesn't go dark, exactly — it now ACKs **every** address on the
-bus and returns `0x00` to every read. So it isn't the master hung on a stretched
-clock; it's the chip itself, wedged. Only a power cycle brings
-it back. (That settles the open question from earlier: on a controlled master,
-it's plainly the '5351 holding the line.)
+there.
 
 Two wrinkles I didn't expect. First, an **acceptance gate** — the chip only ACKs
-a write to reg 5 when the top nibble is all-zeros or all-ones; everything in
+a write to register 0x05 when the top nibble is all-zeros or all-ones; everything in
 between is NAKed outright:
 
 | Value | Top nibble | Result |
@@ -121,13 +116,13 @@ between is NAKed outright:
 | `0x10`–`0xEF` | mixed | NAK — rejected |
 | `0xF0`–`0xFF` | `1111` | ACK — **lockup** |
 
-Second, a **write-lockout**: once you NAK reg 5 with a "middle" value, it stops
-accepting *any* write to reg 5 until the next power cycle.
+Second, a **write-lockout**: once you NAK register 0x05 with a "middle" value, it stops
+accepting *any* write to 0x05 until the next power cycle.
 
-### Reg 7 — the address register nobody documented
+### 0x07 — the undocumented address register
 
 Remember the stranger cousin — the chip vanishing from `0x60` and popping up at
-other addresses? Here's a big piece of it. Reg 7 appears to act like an 
+other addresses? Here's a big piece of it. 0x07 appears to act like an 
 **undocumented I2C address register.** Its top nibble ORs straight 
 into the device address:
 
@@ -135,7 +130,7 @@ into the device address:
 effective address = 0x60 | (reg7 >> 4)   →   0x60 … 0x6F
 ```
 
-So a stray write to reg 7 doesn't hang anything — it *moves the chip.* From a
+So a stray write to 0x07 doesn't hang anything — it *moves the chip.* From a
 host looking for it on `0x60`, a part quietly answering at `0x64` looks
 exactly like one that disappeared. The base `0x60` is hardwired — reg
 7 can only OR bits *in* — and a power cycle puts it back to `0x60`.
@@ -144,8 +139,8 @@ exactly like one that disappeared. The base `0x60` is hardwired — reg
 
 Beyond the two dangerous registers, the MS5351M has a personality worth noting:
 
-- **Genuinely three outputs.** MS0–MS2 (regs 42–65) are full R/W multisynths;
-  MS3–MS7 (regs 66–91) read back `0xFF` and silently swallow writes. It isn't a
+- **Genuinely three outputs.** MS0–MS2 (registers 0x42–0x65) are full R/W multisynths;
+  MS3–MS7 (registers 0x66–0x91) read back `0xFF` and silently swallow writes. It isn't a
   fuse or a software lock — in the clone's silicon there are only three.
 - **On-die telemetry nobody advertises.** A couple of registers aren't static at
   all. **Reg 222 drifts continuously and seems to track temperature** — it climbs
@@ -153,7 +148,7 @@ Beyond the two dangerous registers, the MS5351M has a personality worth noting:
   landing mid-conversion; reg 223 sits at `0x78` and jumps to `0xFF` at the very
   same moments.
 
-## The genuine article, side by side
+## Side by side with the Si5351A
 
 I didn't have to take anyone's word for the genuine part in the end — I finally
 put a real **Si5351A** on the bench myself, hung off *Port B* of the same
@@ -161,7 +156,7 @@ FT4232H so it and the clone ran on identical timing, the same recovery rig, and
 the same 256-address walk, live and side by side. Nothing in this comparison is
 second-hand.
 
-The headline: **the trap moved by exactly one register.** On the MS5351M the
+The headline: **the lockup trap moved by exactly one register.** On the MS5351M the
 SDA-jamming lockup lives at **reg 5**; on the genuine Si5351A reg 5 is a
 harmless R/W register — it even powers up at `0xFF` — and the lockup sits at
 **reg 6** instead. And reg 7, the clone's undocumented address-shift trick, is a

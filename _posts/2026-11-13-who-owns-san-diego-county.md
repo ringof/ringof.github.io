@@ -43,7 +43,7 @@ ledger on the left. Click any parcel for details.
 Anza-Borrego alone does a lot of the lifting in that top row.
 
 There are overlays, too: the Spanish and Mexican **ranchos** from before 1848,
-41 leftover **State Lands Commission** school-land squares and tidelands
+37 leftover **State Lands Commission** school-land squares and tidelands
 (2,641 acres between them), some notable private holdings like Guejito and
 Palomar, special designations, a satellite layer from USGS, and the county's
 **shooting restrictions**. That last one is a picture of where county code bans

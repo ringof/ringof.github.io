@@ -80,6 +80,17 @@ and stop fiddling with the capacitor by hand. Born at W1ZTL's Tuesday Night Work
 
 <div class="project-card" markdown="1">
 
+### [San Diego County land map](/maps/san-diego-land-holders/)
+
+An interactive map of who holds the land in San Diego County: federal, tribal,
+state, local and land trusts, with the old ranchos underneath. About 64% of it
+isn't private. The **[notebook post](/notebook/2026/11/who-owns-san-diego-county/)**
+has the backstory and the sources.
+
+</div>
+
+<div class="project-card" markdown="1">
+
 ### [More on GitHub](https://github.com/ringof?tab=repositories)
 
 EM simulation with openEMS, IMU magnetometer calibration, a FIT-file ride

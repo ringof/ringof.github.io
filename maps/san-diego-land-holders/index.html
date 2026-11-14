@@ -402,6 +402,16 @@ function pickLand(px,py,wx,wy){
       if(f.a!==ASSESSOR){ land=f; break; }
       if(!generic) generic=f; }
     if(!land) land=generic; }
+  // ORDER still decides the holder and the colour. But where that holder is a
+  // generic assessor row and a CPAD record names the same ground in another
+  // category, say so instead of hiding it -- mostly land-trust preserves, which
+  // sit first in ORDER and so lose every tie.
+  if(land && land.a===ASSESSOR){ let also=null;
+    for(let i=ORDER.length-1;i>=0&&!also;i--){ const k=ORDER[i]; if(!on[k]||k===land.cat) continue;
+      for(const f of F[k]){ if(f.a===ASSESSOR) continue; const b=f.bb;
+        if(wx<b[0]||wx>b[2]||wy<b[1]||wy>b[3]) continue;
+        if(ctx.isPointInPath(f.p,px*dpr,py*dpr,'evenodd')){ also=f; break; } } }
+    if(also) land=Object.assign(Object.create(land),{also}); }
   if(shootOn){ for(const k of ['no','shotgun']) for(const f of SH[k]){ const b=f.bb; if(wx<b[0]||wx>b[2]||wy<b[1]||wy>b[3]) continue;
       if(ctx.isPointInPath(f.p,px*dpr,py*dpr,'evenodd')) return land?Object.assign(Object.create(land),{zone:f}):Object.assign(Object.create(f),{zoneOnly:true}); } }
   return land;
@@ -435,6 +445,8 @@ function showTip(f,px,py,pin){ if(!f){tip.hidden=true;return;}
     z.textContent=f.zone.cat==='no'?'⚠ Inside a county no-discharge area':'⚠ Shotguns only here (§33.105)'; tip.appendChild(z); }
   if(f.wild){ const g=document.createElement('div'); g.className='ac'; g.style.color=COL.desig; g.textContent='Inside '+f.wild.n; tip.appendChild(g); }
   if(f.isWild){ tip.querySelector('.ac').textContent='≈'+f.ac.toLocaleString()+' acres · '+(f.ag&&f.ag.startsWith('California')?'state wilderness: no vehicles or bikes':'federal wilderness: no vehicles or bikes'); }
+  if(f.also){ const g=document.createElement('div'); g.className='ac'; g.style.color=COL[f.also.cat];
+    g.textContent='Also within '+f.also.n+' ('+f.also.a+')'; tip.appendChild(g); }
   if(f.grant){ const g=document.createElement('div'); g.className='ac'; g.style.color=COL.rancho;
     g.textContent='Within '+(/^(Mission|Pueblo)/.test(f.grant.n)?'the '+f.grant.n:'Rancho '+f.grant.n)+' grant'; tip.appendChild(g); }
   if(pin){ pinned=true; tip.classList.add('pinned'); tip.appendChild(mapLinks(f,px,py));

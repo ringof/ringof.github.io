@@ -306,13 +306,19 @@ function draw(){
   const [x0,y1]=s2w(0,0), [x1,y0]=s2w(W,H);
   const zoomed=view.s/homeS;
   const fa=satOn?0.62-0.4*satOp:0.62;
+  // Over imagery the fills go translucent so the photo shows through, and the
+  // outlines used to compensate by going thicker AND full strength, which left
+  // them the brightest thing on screen -- a glowing mesh over the photograph.
+  // Keep them legible, let the photo lead, and fade them further as the reader
+  // turns the imagery up, which is them asking for more photo and less diagram.
+  const sa=satOn?0.75-0.3*satOp:1;
   // A parcel a pixel or two across is nearly all outline: a full-strength stroke
   // overpowers its own fill, and a few thousand of them turn the county to static.
   // Fade the outline in with the parcel's size on screen. Over imagery the fills are
   // too faint to carry a parcel alone, so there every parcel keeps its outline.
   const grade=!satOn;
   for(const k of ORDER){ if(!on[k]) continue; const c=COL[k];
-    ctx.fillStyle=hexA(c,fa); ctx.strokeStyle=c; ctx.lineWidth=lw*(satOn?1.6:(zoomed>3?1:0.6)); ctx.lineJoin='round';
+    ctx.fillStyle=hexA(c,fa); ctx.strokeStyle=satOn?hexA(c,sa):c; ctx.lineWidth=lw*(satOn?1:(zoomed>3?1:0.6)); ctx.lineJoin='round';
     const faint=[], solid=[];
     for(const f of F[k]){ const b=f.bb; if(b[2]<x0||b[0]>x1||b[3]<y0||b[1]>y1) continue;
       ctx.fill(f.p,'evenodd');

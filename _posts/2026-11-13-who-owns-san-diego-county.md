@@ -31,8 +31,8 @@ ledger on the left. Click any parcel for details.
 | BLM | 190k | 7.1% |
 | Military (Pendleton, Miramar, Navy bases) | 176k | 6.5% |
 | Tribal (18 reservations) | 140k | 5.2% |
-| Cities | 83k | 3.1% |
-| Water & power (reservoirs, water districts, SDG&E) | 79k | 2.9% |
+| Cities | 82k | 3.1% |
+| Water & power (reservoirs, water districts, SDG&E) | 78k | 2.9% |
 | County | 55k | 2.0% |
 | Other state (campuses, prisons, fairgrounds, Caltrans) | 26k | 1.0% |
 | Land trusts | 25k | 0.9% |

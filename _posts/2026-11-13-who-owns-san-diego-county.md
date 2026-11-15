@@ -6,7 +6,7 @@ tags: [maps, side quests]
 description: >-
   An interactive map of who holds the land in San Diego County: federal,
   tribal, state, local and land-trust parcels, plus overlays for the old
-  ranchos, school-land squares and shooting restrictions. About 66% of the
+  ranchos, school-land squares and shooting restrictions. About 65% of the
   county turns out to be public, tribal or conserved.
 ---
 
@@ -14,8 +14,8 @@ Not a radio this time. A map.
 
 I wanted to know who actually holds the land around here, so I pulled the public
 records together into one map you can poke at. The headline surprised me: about
-**66%** of San Diego County is public, tribal or conserved land. That's roughly
-1.77 million of the county's 2.69 million acres.
+**65%** of San Diego County is public, tribal or conserved land. That's roughly
+1.76 million of the county's 2.69 million acres.
 
 **[Open the San Diego County land map →]({{ '/maps/san-diego-land-holders/' | relative_url }})**
 
@@ -26,12 +26,12 @@ ledger on the left. Click any parcel for details.
 
 | Holder | Acres | Share of county |
 |---|---:|---:|
-| State parks & wildlife (Anza-Borrego, Cuyamaca, reserves) | 664k | 24.7% |
-| National forest (Cleveland) | 289k | 10.7% |
-| BLM | 191k | 7.1% |
+| State parks & wildlife (Anza-Borrego, Cuyamaca, reserves) | 663k | 24.6% |
+| National forest (Cleveland) | 288k | 10.7% |
+| BLM | 190k | 7.1% |
 | Military (Pendleton, Miramar, Navy bases) | 176k | 6.5% |
 | Tribal (18 reservations) | 140k | 5.2% |
-| Cities | 84k | 3.1% |
+| Cities | 83k | 3.1% |
 | Water & power (reservoirs, water districts, SDG&E) | 79k | 2.9% |
 | County | 55k | 2.0% |
 | Other state (campuses, prisons, fairgrounds, Caltrans) | 26k | 1.0% |

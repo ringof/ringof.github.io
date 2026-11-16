@@ -42,3 +42,4 @@ exclude:
   - vendor
   - .jekyll-cache
   - node_modules
+  - maps/san-diego-land-holders/sources
